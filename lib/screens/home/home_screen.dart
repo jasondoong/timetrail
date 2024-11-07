@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timetrail/screens/home/task_card.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -7,6 +8,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _displayText; // Holds the text to display above the button
+
+  List tasks = ['aaa', 'bbb'];
 
   void _openTextInputDialog() async {
     final result = await showDialog<String>(
@@ -51,22 +54,32 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: Text("Add Text Example")),
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_displayText != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  _displayText!,
-                  style: TextStyle(fontSize: 24),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (_, index) {
+                    return TaskCard(tasks[index]);
+                  },
                 ),
               ),
-            FloatingActionButton(
-              onPressed: _openTextInputDialog,
-              child: Icon(Icons.add),
-            ),
-          ],
+              if (_displayText != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: TaskCard(
+                    _displayText!
+                  ),
+                ),
+              FloatingActionButton(
+                onPressed: _openTextInputDialog,
+                child: Icon(Icons.add),
+              ),
+            ],
+          ),
         ),
       ),
     );
