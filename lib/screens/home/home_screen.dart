@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timetrail/models/task.dart';
 import 'package:timetrail/screens/home/task_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -7,7 +8,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List tasks = ['aaa', 'bbb'];
 
   void _openTextInputDialog() async {
     final result = await showDialog<String>(
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result != null && result.isNotEmpty) {
       setState(() {
-        tasks.add(result);
+        tasks.add(Task(id: tasks.length+1, name: result, closed: false));
       });
     }
   }
