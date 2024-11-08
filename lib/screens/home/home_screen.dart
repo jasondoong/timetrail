@@ -7,8 +7,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _displayText; // Holds the text to display above the button
-
   List tasks = ['aaa', 'bbb'];
 
   void _openTextInputDialog() async {
@@ -44,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result != null && result.isNotEmpty) {
       setState(() {
-        _displayText = result; // Update the displayed text
+        tasks.add(result);
       });
     }
   }
@@ -67,13 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-              if (_displayText != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: TaskCard(
-                    _displayText!
-                  ),
-                ),
               FloatingActionButton(
                 onPressed: _openTextInputDialog,
                 child: Icon(Icons.add),
