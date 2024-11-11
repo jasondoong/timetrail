@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
 import 'package:timetrail/screens/home/task_card.dart';
+import 'package:timetrail/services/isar_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
+
+// Service instance for Isar database operations
+IsarService isarService = IsarService();
 
 class _HomeScreenState extends State<HomeScreen> {
 
@@ -41,9 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (result != null && result.isNotEmpty) {
-      setState(() {
-        tasks.add(Task(id: tasks.length+1, name: result, closed: false));
-      });
+      await isarService.saveTask(Task(name: result, closed: false));
     }
   }
 
@@ -58,11 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (_, index) {
-                    return TaskCard(tasks[index]);
-                  },
+                child: StreamBuilder<List<Task>>(
+                  stream: isarService.listenTask(),
+                  builder: (context, snapshot) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (_, index) {
+                        return TaskCard(snapshot.data![index]);
+                      },
+                    );
+                  }
                 ),
               ),
               FloatingActionButton(
