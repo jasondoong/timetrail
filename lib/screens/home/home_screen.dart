@@ -19,25 +19,25 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         String inputText = "";
         return AlertDialog(
-          title: Text("Enter Text"),
+          title: Text("新增任務"),
           content: TextField(
             onChanged: (value) {
               inputText = value;
             },
-            decoration: InputDecoration(hintText: "Type something here"),
+            decoration: InputDecoration(hintText: "輸入任務名稱"),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog without saving
               },
-              child: Text("Cancel"),
+              child: Text("取消"),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(inputText); // Return the input text
               },
-              child: Text("Save"),
+              child: Text("儲存"),
             ),
           ],
         );

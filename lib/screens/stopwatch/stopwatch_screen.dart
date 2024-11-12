@@ -33,7 +33,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('計時'),
+        title: Text(widget.task.name),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

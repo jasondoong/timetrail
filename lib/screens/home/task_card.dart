@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
+import 'package:timetrail/screens/home/home_screen.dart';
 import 'package:timetrail/screens/stopwatch/stopwatch_screen.dart';
 import 'package:timetrail/shared/styled_text.dart';
 
@@ -10,6 +11,9 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -19,10 +23,27 @@ class TaskCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('${task.id}:'),
-                  const SizedBox(width: 8),
                   Expanded(child: StyledText(task.name)),
-                  Text(task.closed ? "已結案": "未結案")
+                  SizedBox(width: 3),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.onSecondaryContainer,
+                      backgroundColor: colorScheme.secondaryContainer,
+                    ),
+                    onPressed: () {
+                    },
+                    child: Text('改名')
+                  ),
+                  SizedBox(width: 3),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.onError,
+                      backgroundColor: colorScheme.error,
+                    ),
+                    onPressed: () {},
+                    child: Text('結案')
+                  ),
+                  SizedBox(width: 3),
                 ],
               )
             ),
