@@ -12,6 +12,7 @@ class HomeScreen extends StatefulWidget {
 IsarService isarService = IsarService();
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _showClosedTasks = false;
 
   void _openTextInputDialog() async {
     final result = await showDialog<String>(
@@ -58,6 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text("任務列表"),
         backgroundColor: colorScheme.secondaryFixed,
+        actions: [
+          Text(_showClosedTasks ? '已結案' : '未結案'),
+          Switch(
+            value: _showClosedTasks,
+            onChanged: (value) => setState(() => _showClosedTasks = value),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(
@@ -69,13 +77,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: StreamBuilder<List<Task>>(
                   stream: isarService.listenTask(),
                   builder: (context, snapshot) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (_, index) {
-                        return TaskCard(snapshot.data![index]);
-                      },
-                    );
-                  }
+                    if (snapshot.hasData) {
+                      final filteredTasks = snapshot.data!.where((task) =>
+                          _showClosedTasks == task.closed).toList(); // Filter tasks
+                      return ListView.builder(
+                        itemCount: filteredTasks.length,
+                        itemBuilder: (_, index) => TaskCard(filteredTasks[index]),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    // Display a loading indicator while waiting for data
+                    return CircularProgressIndicator();
+                  },
                 ),
               ),
               FloatingActionButton(

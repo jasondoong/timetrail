@@ -47,6 +47,33 @@ class TaskCard extends StatelessWidget {
         },
       );
     }
+
+    void _showCloseTaskDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(task.closed ? '復原專案' : '結案'),
+            content: Text('確定要${task.closed ? '復原': '結案'}「${task.name}」嗎？'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('取消'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  task.closed = !task.closed;
+                  await isarService.updateTask(task);                    
+                  Navigator.pop(context);
+                },
+                child: Text(task.closed ? '復原': '結案'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -69,11 +96,11 @@ class TaskCard extends StatelessWidget {
                   SizedBox(width: 3),
                   TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.onError,
-                      backgroundColor: colorScheme.error,
+                      foregroundColor: task.closed? colorScheme.onSecondaryContainer : colorScheme.onError,
+                      backgroundColor: task.closed? colorScheme.secondaryContainer : colorScheme.error,
                     ),
-                    onPressed: () {},
-                    child: Text('結案')
+                    onPressed: () => _showCloseTaskDialog(context),
+                    child: Text(task.closed ? '恢復專案': '結案')
                   ),
                   SizedBox(width: 3),
                 ],
