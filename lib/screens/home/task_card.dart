@@ -14,6 +14,39 @@ class TaskCard extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
+    void _showRenameDialog(BuildContext context) {
+      final newTaskNameController = TextEditingController(text: task.name);
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('改名'),
+            content: TextField(
+              controller: newTaskNameController,
+              decoration: InputDecoration(hintText: '輸入新名稱'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('取消'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (newTaskNameController.text.isNotEmpty) {
+                    task.name = newTaskNameController.text;
+                    await isarService.updateTask(task);                    
+                  }
+                  
+                  Navigator.pop(context);
+                },
+                child: Text('儲存'),
+              ),
+            ],
+          );
+        },
+      );
+    }
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,8 +63,7 @@ class TaskCard extends StatelessWidget {
                       foregroundColor: colorScheme.onSecondaryContainer,
                       backgroundColor: colorScheme.secondaryContainer,
                     ),
-                    onPressed: () {
-                    },
+                    onPressed: () => _showRenameDialog(context),
                     child: Text('改名')
                   ),
                   SizedBox(width: 3),

@@ -31,9 +31,13 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.task.name),
+        backgroundColor: colorScheme.secondaryFixed,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -48,7 +52,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(12.0),
             child: Table(
               border: TableBorder.all(
                 color: Colors.black,
@@ -67,6 +71,12 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text('工時', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('備註', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -93,7 +103,15 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                           ),
                         ),
                       ),
-
+                      TableCell(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            record.memo ?? '',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
                     ],
                   );
                 }).toList() ??

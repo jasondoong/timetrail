@@ -51,8 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("任務列表")),
+      appBar: AppBar(
+        title: const Text("任務列表"),
+        backgroundColor: colorScheme.secondaryFixed,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

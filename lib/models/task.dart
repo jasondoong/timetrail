@@ -20,4 +20,5 @@ class Record {
   
   DateTime? recordAt;
   short? seconds;
+  String? memo;
 }
