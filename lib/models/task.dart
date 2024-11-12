@@ -10,4 +10,14 @@ class Task {
   Id id = Isar.autoIncrement;
   String name;
   bool closed;
+  List<Record>? records;
+}
+
+
+@embedded
+class Record {
+  Record({this.recordAt, this.seconds});
+  
+  DateTime? recordAt;
+  short? seconds;
 }

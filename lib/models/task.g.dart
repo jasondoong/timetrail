@@ -26,6 +26,12 @@ const TaskSchema = CollectionSchema(
       id: 1,
       name: r'name',
       type: IsarType.string,
+    ),
+    r'records': PropertySchema(
+      id: 2,
+      name: r'records',
+      type: IsarType.objectList,
+      target: r'Record',
     )
   },
   estimateSize: _taskEstimateSize,
@@ -35,7 +41,7 @@ const TaskSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {},
+  embeddedSchemas: {r'Record': RecordSchema},
   getId: _taskGetId,
   getLinks: _taskGetLinks,
   attach: _taskAttach,
@@ -49,6 +55,19 @@ int _taskEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
+  {
+    final list = object.records;
+    if (list != null) {
+      bytesCount += 3 + list.length * 3;
+      {
+        final offsets = allOffsets[Record]!;
+        for (var i = 0; i < list.length; i++) {
+          final value = list[i];
+          bytesCount += RecordSchema.estimateSize(value, offsets, allOffsets);
+        }
+      }
+    }
+  }
   return bytesCount;
 }
 
@@ -60,6 +79,12 @@ void _taskSerialize(
 ) {
   writer.writeBool(offsets[0], object.closed);
   writer.writeString(offsets[1], object.name);
+  writer.writeObjectList<Record>(
+    offsets[2],
+    allOffsets,
+    RecordSchema.serialize,
+    object.records,
+  );
 }
 
 Task _taskDeserialize(
@@ -73,6 +98,12 @@ Task _taskDeserialize(
     name: reader.readString(offsets[1]),
   );
   object.id = id;
+  object.records = reader.readObjectList<Record>(
+    offsets[2],
+    RecordSchema.deserialize,
+    allOffsets,
+    Record(),
+  );
   return object;
 }
 
@@ -87,6 +118,13 @@ P _taskDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readObjectList<Record>(
+        offset,
+        RecordSchema.deserialize,
+        allOffsets,
+        Record(),
+      )) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -368,9 +406,116 @@ extension TaskQueryFilter on QueryBuilder<Task, Task, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'records',
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'records',
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'records',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
 }
 
-extension TaskQueryObject on QueryBuilder<Task, Task, QFilterCondition> {}
+extension TaskQueryObject on QueryBuilder<Task, Task, QFilterCondition> {
+  QueryBuilder<Task, Task, QAfterFilterCondition> recordsElement(
+      FilterQuery<Record> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'records');
+    });
+  }
+}
 
 extension TaskQueryLinks on QueryBuilder<Task, Task, QFilterCondition> {}
 
@@ -471,4 +616,228 @@ extension TaskQueryProperty on QueryBuilder<Task, Task, QQueryProperty> {
       return query.addPropertyName(r'name');
     });
   }
+
+  QueryBuilder<Task, List<Record>?, QQueryOperations> recordsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'records');
+    });
+  }
 }
+
+// **************************************************************************
+// IsarEmbeddedGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const RecordSchema = Schema(
+  name: r'Record',
+  id: -5560585825827271694,
+  properties: {
+    r'recordAt': PropertySchema(
+      id: 0,
+      name: r'recordAt',
+      type: IsarType.dateTime,
+    ),
+    r'seconds': PropertySchema(
+      id: 1,
+      name: r'seconds',
+      type: IsarType.int,
+    )
+  },
+  estimateSize: _recordEstimateSize,
+  serialize: _recordSerialize,
+  deserialize: _recordDeserialize,
+  deserializeProp: _recordDeserializeProp,
+);
+
+int _recordEstimateSize(
+  Record object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  return bytesCount;
+}
+
+void _recordSerialize(
+  Record object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeDateTime(offsets[0], object.recordAt);
+  writer.writeInt(offsets[1], object.seconds);
+}
+
+Record _recordDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = Record(
+    recordAt: reader.readDateTimeOrNull(offsets[0]),
+    seconds: reader.readIntOrNull(offsets[1]),
+  );
+  return object;
+}
+
+P _recordDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 1:
+      return (reader.readIntOrNull(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension RecordQueryFilter on QueryBuilder<Record, Record, QFilterCondition> {
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'recordAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'recordAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'recordAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'recordAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'recordAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> recordAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'recordAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'seconds',
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'seconds',
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'seconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'seconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'seconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Record, Record, QAfterFilterCondition> secondsBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'seconds',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension RecordQueryObject on QueryBuilder<Record, Record, QFilterCondition> {}

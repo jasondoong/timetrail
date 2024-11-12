@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
+import 'package:timetrail/screens/stopwatch/stopwatch_screen.dart';
 import 'package:timetrail/shared/styled_text.dart';
 
 class TaskCard extends StatelessWidget {
@@ -21,12 +22,19 @@ class TaskCard extends StatelessWidget {
                   Text('${task.id}:'),
                   const SizedBox(width: 8),
                   Expanded(child: StyledText(task.name)),
-                  Text('closed: ${task.closed}')
+                  Text(task.closed ? "已結案": "未結案")
                 ],
               )
             ),
             IconButton(
-              onPressed: () {}, 
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => StopwatchScreen(task: task),
+                  )
+                );
+              }, 
               icon: const Icon(Icons.arrow_forward),
             )
           ]

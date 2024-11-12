@@ -22,6 +22,15 @@ class IsarService {
     yield* isar.tasks.where().watch(fireImmediately: true);
   }
 
+    // Update an existing task in the Isar database.
+  Future<void> updateTask(Task task) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      //Perform a write transaction to update the task in the database.
+      await isar.tasks.put(task);
+    });
+  }
+
   Future<Isar> openDB() async {
     var dir = await getApplicationDocumentsDirectory();
     
