@@ -29,6 +29,46 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     return _formatRecordTime(totalSeconds);
   }
 
+  // Function to edit memo in a dialog
+  void _editMemo(Task task, Record recordToModify) async {
+    final newMemo = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        final TextEditingController controller = TextEditingController(text: recordToModify.memo ?? '');
+        return AlertDialog(
+          title: Text('編輯備註'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: '輸入備註'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, controller.text);
+              },
+              child: Text('儲存'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newMemo != null) {
+      // Find the index of the record to modify
+      final index = task.records?.indexWhere((record) => record == recordToModify);
+      if (index != null) {
+        task.records?[index].memo = newMemo;
+        await isarService.updateTask(task);
+        setState(() {
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -42,7 +82,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          StopwatchWidget(
+          if (! widget.task.closed) StopwatchWidget(
             task: widget.task,
             onFinish: _handleFinish,
           ),
@@ -106,9 +146,14 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            record.memo ?? '',
-                            style: TextStyle(fontSize: 16),
+                          child: GestureDetector(
+                            onTap: () {
+                              _editMemo(widget.task, record);
+                            },
+                            child: Text(
+                              record.memo ?? '',
+                              style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 13, 45, 61)),
+                            ),
                           ),
                         ),
                       ),

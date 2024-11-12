@@ -96,8 +96,8 @@ class TaskCard extends StatelessWidget {
                   SizedBox(width: 3),
                   TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: task.closed? colorScheme.onSecondaryContainer : colorScheme.onError,
-                      backgroundColor: task.closed? colorScheme.secondaryContainer : colorScheme.error,
+                      foregroundColor: task.closed? colorScheme.onSecondaryContainer : colorScheme.surface,
+                      backgroundColor: task.closed? colorScheme.secondaryContainer : colorScheme.outline,
                     ),
                     onPressed: () => _showCloseTaskDialog(context),
                     child: Text(task.closed ? '恢復專案': '結案')
