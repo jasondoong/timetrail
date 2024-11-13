@@ -1,10 +1,10 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
 import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share/share.dart';
 import 'package:timetrail/screens/home/task_card.dart';
 import 'package:timetrail/services/isar_service.dart';
 
@@ -56,33 +56,71 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  // Export tasks to an Excel file
+  // Export tasks to an Excel file with each task on a separate sheet
   Future<void> _exportTasks() async {
     // Fetch tasks from the database
     List<Task> tasks = await isarService.getAllTasks();
 
     // Create a new Excel workbook
     var excel = Excel.createExcel();
-    Sheet sheetObject = excel['Tasks'];
+    excel.delete('Sheet1');
 
-    // Add headers
-    sheetObject.appendRow([TextCellValue("ID"), TextCellValue("Name"), TextCellValue("Status")]);
-
-    // Populate rows with task data
     for (var task in tasks) {
+      // Create a new sheet for each task, named after the task name
+      String sheetName = task.name.length > 31 ? task.name.substring(0, 31) : task.name; // Ensure sheet name is within Excel's 31-char limit
+      Sheet sheetObject = excel[sheetName];
+
+      // Add headers for task info and records
+      sheetObject.appendRow([TextCellValue("Task ID"), TextCellValue("Name"), TextCellValue("Status")]);
       sheetObject.appendRow([TextCellValue(task.id.toString()), TextCellValue(task.name), TextCellValue(task.closed ? "Closed" : "Open")]);
+
+      // Leave a blank row before records
+      sheetObject.appendRow([TextCellValue("")]);
+
+      // Headers for records
+      sheetObject.appendRow([TextCellValue("Record At"), TextCellValue("Seconds"), TextCellValue("Memo")]);
+
+      // Populate rows with record data for each task
+      if (task.records != null && task.records!.isNotEmpty) {
+        for (var record in task.records!) {
+          sheetObject.appendRow([
+            TextCellValue(record.recordAt?.toIso8601String() ?? "N/A"),
+            TextCellValue(record.seconds?.toString() ?? "N/A"),
+            TextCellValue(record.memo ?? ""),
+          ]);
+        }
+      } else {
+        sheetObject.appendRow([TextCellValue("No records available")]);
+      }
     }
 
-    // Save the file to temporary directory
+    // Encode the Excel file
     var fileBytes = excel.encode();
-    Directory tempDir = await getTemporaryDirectory();
-    String filePath = "${tempDir.path}/tasks.xlsx";
-    File(filePath)
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(fileBytes!);
 
-    // Share the file
-    await Share.shareFiles([filePath], text: "Exported Tasks");
+    // Use FilePicker to select a location to save the file
+    String? outputPath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Select Output Location',
+      fileName: 'tasks_with_records.xlsx',
+    );
+
+    if (outputPath != null && fileBytes != null) {
+      if (!outputPath.endsWith('.xlsx')) {
+        outputPath = '$outputPath.xlsx';
+      }
+      
+      // Save the file to the selected location
+      File(outputPath)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File saved to $outputPath")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File saving was cancelled.")),
+      );
+    }
   }
 
 
