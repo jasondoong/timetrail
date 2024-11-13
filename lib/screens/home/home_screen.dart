@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
+import 'package:excel/excel.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:timetrail/screens/home/task_card.dart';
 import 'package:timetrail/services/isar_service.dart';
 
@@ -50,6 +55,37 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+  // Export tasks to an Excel file
+  Future<void> _exportTasks() async {
+    // Fetch tasks from the database
+    List<Task> tasks = await isarService.getAllTasks();
+
+    // Create a new Excel workbook
+    var excel = Excel.createExcel();
+    Sheet sheetObject = excel['Tasks'];
+
+    // Add headers
+    sheetObject.appendRow([TextCellValue("ID"), TextCellValue("Name"), TextCellValue("Status")]);
+
+    // Populate rows with task data
+    for (var task in tasks) {
+      sheetObject.appendRow([TextCellValue(task.id.toString()), TextCellValue(task.name), TextCellValue(task.closed ? "Closed" : "Open")]);
+    }
+
+    // Save the file to temporary directory
+    var fileBytes = excel.encode();
+    Directory tempDir = await getTemporaryDirectory();
+    String filePath = "${tempDir.path}/tasks.xlsx";
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(fileBytes!);
+
+    // Share the file
+    await Share.shareFiles([filePath], text: "Exported Tasks");
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -65,6 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
             value: _showClosedTasks,
             onChanged: (value) => setState(() => _showClosedTasks = value),
           ),
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: _exportTasks,
+            tooltip: "Export tasks",
+          ),
+          SizedBox(width: 16),
         ],
       ),
       body: Center(

@@ -31,6 +31,13 @@ class IsarService {
     });
   }
 
+  //Retrieve all tasks from the Isar database.
+  Future<List<Task>> getAllTasks() async {
+    final isar = await db;
+    //Find all users in the user collection and return the list.
+    return await isar.tasks.where().findAll();
+  }
+
   Future<Isar> openDB() async {
     var dir = await getApplicationDocumentsDirectory();
     
