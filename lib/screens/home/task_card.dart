@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
-import 'package:timetrail/screens/home/home_screen.dart';
 import 'package:timetrail/screens/stopwatch/stopwatch_screen.dart';
+import 'package:timetrail/services/isar_service.dart';
 import 'package:timetrail/shared/styled_text.dart';
 import 'package:timetrail/shared/text_input_dialog.dart';
 
 import 'close_task_dialog.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard(this.task, {super.key});
+  const TaskCard(this.task, this.isarService, {super.key});
 
   final Task task;
+  final IsarService isarService;
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +49,10 @@ class TaskCard extends StatelessWidget {
     }
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 3,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Expanded(
@@ -57,27 +60,26 @@ class TaskCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(child: StyledText(task.name)),
-                  SizedBox(width: 3),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.onSecondaryContainer,
-                      backgroundColor: colorScheme.secondaryContainer,
-                    ),
-                    onPressed: () => _showRenameDialog(context),
-                    child: Text('改名')
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: colorScheme.secondary),
+                        onPressed: () => _showRenameDialog(context),
+                        tooltip: '改名',
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          task.closed ? Icons.undo : Icons.check,
+                          color: task.closed ? colorScheme.primary : colorScheme.error,
+                        ),
+                        onPressed: () => _showCloseTaskDialog(context),
+                        tooltip: task.closed ? '恢復專案': '結案',
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 3),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: task.closed? colorScheme.onSecondaryContainer : colorScheme.surface,
-                      backgroundColor: task.closed? colorScheme.secondaryContainer : colorScheme.outline,
-                    ),
-                    onPressed: () => _showCloseTaskDialog(context),
-                    child: Text(task.closed ? '恢復專案': '結案')
-                  ),
-                  SizedBox(width: 3),
                 ],
-              )
+              ),
             ),
             IconButton(
               onPressed: () {

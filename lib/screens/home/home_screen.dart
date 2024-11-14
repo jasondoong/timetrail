@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:timetrail/models/task.dart';
 import 'package:timetrail/screens/home/task_card.dart';
@@ -45,7 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("任務列表"),
         backgroundColor: colorScheme.secondaryFixed,
         actions: [
-          Text(_showClosedTasks ? '已結案' : '未結案'),
+          Text(
+            _showClosedTasks ? '已結案' : '未結案',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
           Switch(
             value: _showClosedTasks,
             onChanged: (value) => setState(() => _showClosedTasks = value),
@@ -71,14 +73,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasData) {
                       final filteredTasks = snapshot.data!.where((task) =>
                           _showClosedTasks == task.closed).toList(); // Filter tasks
+                      if (filteredTasks.isEmpty) {
+                        return Center(
+                          child: StyledText(_showClosedTasks ? '沒有已結案任務': '沒有任何任務，請新增一個新的任務。')
+                        );
+                      }
                       return ListView.builder(
                         itemCount: filteredTasks.length,
-                        itemBuilder: (_, index) => TaskCard(filteredTasks[index]),
+                        itemBuilder: (_, index) => TaskCard(filteredTasks[index], isarService),
                       );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
-
                     // Display a loading indicator while waiting for data
                     return Center(
                       child: StyledText('Loading...')
