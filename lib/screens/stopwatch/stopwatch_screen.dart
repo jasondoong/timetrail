@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timetrail/models/task.dart';
+import 'package:timetrail/shared/text_input_dialog.dart';
 import 'package:timetrail/utils/format_time.dart';
 import 'stopwatch_widget.dart';
 
@@ -35,25 +36,10 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     final newMemo = await showDialog<String>(
       context: context,
       builder: (context) {
-        final TextEditingController controller = TextEditingController(text: recordToModify.memo ?? '');
-        return AlertDialog(
-          title: Text('編輯備註'),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(hintText: '輸入備註'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('取消'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, controller.text);
-              },
-              child: Text('儲存'),
-            ),
-          ],
+        return TextInputDialog(
+          title: '編輯備註', 
+          hintText: '輸入備註',
+          initialText: recordToModify.memo,
         );
       },
     );
