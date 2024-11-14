@@ -24,7 +24,6 @@ class TasksExportService {
 
     // Create a new Excel workbook
     var excel = Excel.createExcel();
-    excel.delete('Sheet1');
 
     for (var task in tasks) {
       // Create a new sheet for each task, named after the task name
@@ -54,6 +53,8 @@ class TasksExportService {
         sheetObject.appendRow([TextCellValue("無紀錄")]);
       }
     }
+
+    excel.delete('Sheet1');
 
     // Encode the Excel file
     var fileBytes = excel.encode();

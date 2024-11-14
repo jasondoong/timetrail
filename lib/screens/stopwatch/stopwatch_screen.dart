@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:timetrail/models/task.dart';
 import 'package:timetrail/shared/text_input_dialog.dart';
-import 'package:timetrail/utils/format_time.dart';
 import 'stopwatch_widget.dart';
 import 'record_table_widget.dart';
 
