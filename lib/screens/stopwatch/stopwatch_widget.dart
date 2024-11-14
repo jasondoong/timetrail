@@ -4,7 +4,7 @@ import 'package:timetrail/models/task.dart';
 import 'package:timetrail/services/isar_service.dart';
 
 class StopwatchWidget extends StatefulWidget {
-  final Task task; // Add a Task parameter to save the record
+  final Task task;
   final Function onFinish;
 
   StopwatchWidget({required this.task, required this.onFinish});
@@ -99,15 +99,12 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
             ),
             TextButton(
               onPressed: () async {
-                // Update the time based on user input (as in the original example)
                 int adjustedHours = int.tryParse(hourController.text) ?? 0;
                 int adjustedMinutes = int.tryParse(minuteController.text) ?? 0;
                 int adjustedSeconds = int.tryParse(secondController.text) ?? 0;
 
-                // Update seconds based on adjusted time
                 _seconds = adjustedHours * 3600 + adjustedMinutes * 60 + adjustedSeconds;
 
-                // Append the record to the task
                 final record = Record(
                   recordAt: DateTime.now(),
                   seconds: _seconds,
@@ -119,17 +116,14 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
 
                 // Update task's records and save it to Isar
                 widget.task.records = newRecords;
-
-                // Save the task to Isar
-                isarService.updateTask(widget.task);
+                await isarService.updateTask(widget.task);
 
                 setState(() {
-                  // reset secords
+                  // reset seconds
                   _seconds = 0;
                 });
 
                 widget.onFinish();
-
                 Navigator.of(context).pop();
               },
               child: Text("確定"),
@@ -158,30 +152,54 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          _formatTime(_seconds),
-          style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+        // Timer Display
+        Card(
+          color: colorScheme.primaryContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+            child: Text(
+              _formatTime(_seconds),
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
+        // Action Buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            IconButton(
               onPressed: _isRunning ? null : _startTimer,
-              child: Text('開始'),
+              icon: Icon(Icons.play_arrow),
+              iconSize: 36,
+              color: _isRunning ? Colors.grey : colorScheme.primary,
             ),
-            SizedBox(width: 10),
-            ElevatedButton(
+            const SizedBox(width: 10),
+            IconButton(
               onPressed: _isRunning ? _pauseTimer : null,
-              child: Text('暫停'),
+              icon: Icon(Icons.pause),
+              iconSize: 36,
+              color: _isRunning ? colorScheme.secondary : Colors.grey,
             ),
-            SizedBox(width: 10),
-            ElevatedButton(
+            const SizedBox(width: 10),
+            IconButton(
               onPressed: _stopTimer,
-              child: Text('結束'),
+              icon: Icon(Icons.stop),
+              iconSize: 36,
+              color: colorScheme.error,
             ),
           ],
         ),
