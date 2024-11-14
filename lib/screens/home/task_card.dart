@@ -3,6 +3,9 @@ import 'package:timetrail/models/task.dart';
 import 'package:timetrail/screens/home/home_screen.dart';
 import 'package:timetrail/screens/stopwatch/stopwatch_screen.dart';
 import 'package:timetrail/shared/styled_text.dart';
+import 'package:timetrail/shared/text_input_dialog.dart';
+
+import 'close_task_dialog.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard(this.task, {super.key});
@@ -13,62 +16,32 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-
-    void _showRenameDialog(BuildContext context) {
-      final newTaskNameController = TextEditingController(text: task.name);
-
-      showDialog(
+    
+    void _showRenameDialog(BuildContext context) async {
+      final result = await showDialog<String>(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('改名'),
-            content: TextField(
-              controller: newTaskNameController,
-              decoration: InputDecoration(hintText: '輸入新名稱'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('取消'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (newTaskNameController.text.isNotEmpty) {
-                    task.name = newTaskNameController.text;
-                    await isarService.updateTask(task);                    
-                  }
-                  
-                  Navigator.pop(context);
-                },
-                child: Text('儲存'),
-              ),
-            ],
+          return TextInputDialog(
+            title: '改名',
+            hintText: '輸入新名稱',
+            initialText: task.name,
           );
         },
       );
+
+      if (result != null && result.isNotEmpty && result != task.name) {
+        task.name = result;
+        await isarService.updateTask(task);
+      }
     }
 
     void _showCloseTaskDialog(BuildContext context) {
       showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text(task.closed ? '復原專案' : '結案'),
-            content: Text('確定要${task.closed ? '復原': '結案'}「${task.name}」嗎？'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('取消'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  task.closed = !task.closed;
-                  await isarService.updateTask(task);                    
-                  Navigator.pop(context);
-                },
-                child: Text(task.closed ? '復原': '結案'),
-              ),
-            ],
+          return CloseTaskDialog(
+            task: task,
+            onTaskUpdate: isarService.updateTask, // Pass the update function
           );
         },
       );

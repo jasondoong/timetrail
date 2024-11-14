@@ -5,6 +5,7 @@ import 'package:timetrail/screens/home/task_card.dart';
 import 'package:timetrail/services/isar_service.dart';
 import 'package:timetrail/services/tasks_export_service.dart';
 import 'package:timetrail/shared/styled_text.dart';
+import 'package:timetrail/shared/text_input_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -21,29 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) {
-        String inputText = "";
-        return AlertDialog(
-          title: Text("新增任務"),
-          content: TextField(
-            onChanged: (value) {
-              inputText = value;
-            },
-            decoration: InputDecoration(hintText: "輸入任務名稱"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog without saving
-              },
-              child: Text("取消"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(inputText); // Return the input text
-              },
-              child: Text("儲存"),
-            ),
-          ],
+        return TextInputDialog(
+          title: "新增任務",
+          hintText: "輸入任務名稱",
         );
       },
     );
@@ -72,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.download),
             onPressed: tasksExportService.exportTasks,
-            tooltip: "Export tasks",
+            tooltip: "匯出所有任務",
           ),
           SizedBox(width: 16),
         ],
