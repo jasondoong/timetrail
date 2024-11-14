@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timetrail/models/task.dart';
+import 'package:timetrail/utils/format_time.dart';
 import 'stopwatch_widget.dart';
 
 class StopwatchScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
       return (sum ?? 0) + (record.seconds ?? 0); 
     }) ?? 0; // If task.records is null, default to 0 seconds
 
-    return _formatRecordTime(totalSeconds);
+    return formatRecordTime(totalSeconds);
   }
 
   // Function to edit memo in a dialog
@@ -138,7 +139,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            _formatRecordTime(record.seconds ?? 0),
+                            formatRecordTime(record.seconds ?? 0),
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -180,15 +181,5 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
         ],
       ),
     );
-  }
-
-  // Format the time in hours:minutes:seconds
-  String _formatRecordTime(int seconds) {
-    final int hours = seconds ~/ 3600;
-    final int minutes = (seconds % 3600) ~/ 60;
-    final int displaySeconds = seconds % 60;
-    return '${hours.toString().padLeft(2, '0')}時'
-           '${minutes.toString().padLeft(2, '0')}分'
-           '${displaySeconds.toString().padLeft(2, '0')}秒';
   }
 }
