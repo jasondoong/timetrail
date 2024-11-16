@@ -59,7 +59,7 @@ class TaskCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: StyledText(task.name)),
+                  StyledText(task.name),
                   SizedBox(height: 8),
                   Row(
                     children: [
