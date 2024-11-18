@@ -16,6 +16,7 @@ IsarService isarService = IsarService();
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _showClosedTasks = false;
+  final ScrollController _scrollController = ScrollController();
 
   void _openTextInputDialog() async {
     final result = await showDialog<String>(
@@ -78,9 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: StyledText(_showClosedTasks ? '沒有已結案任務': '沒有任何任務，請新增一個新的任務。')
                         );
                       }
-                      return ListView.builder(
-                        itemCount: filteredTasks.length,
-                        itemBuilder: (_, index) => TaskCard(filteredTasks[index], isarService),
+                      return Scrollbar(
+                        thumbVisibility: true,
+                        controller: _scrollController,
+                        child: ListView.builder(
+                          itemCount: filteredTasks.length,
+                          itemBuilder: (_, index) => TaskCard(filteredTasks[index], isarService),
+                          controller: _scrollController,
+                          scrollDirection: Axis.vertical,
+                        ),
                       );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');

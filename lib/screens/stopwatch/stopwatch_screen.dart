@@ -60,9 +60,13 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
               task: widget.task,
               onFinish: _handleFinish,
             ),
-          RecordTableWidget(
-            task: widget.task,
-            onEditMemo: _editMemo,
+          Expanded(
+            child: SingleChildScrollView(
+              child: RecordTableWidget(
+                task: widget.task,
+                onEditMemo: _editMemo,
+              ),
+            ),
           ),
         ],
       ),
