@@ -5,6 +5,7 @@ import 'package:timetrail/services/isar_service.dart';
 import 'package:timetrail/services/tasks_export_service.dart';
 import 'package:timetrail/shared/styled_text.dart';
 import 'package:timetrail/shared/text_input_dialog.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -58,7 +59,40 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: tasksExportService.exportTasks,
             tooltip: "匯出所有任務",
           ),
-          SizedBox(width: 16),
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: () {
+              showAboutDialog(
+                context: context,
+                applicationName: "TimeTrail",
+                applicationVersion: "0.9.0",
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        Text("Author: Jason Dong"),
+                        InkWell(
+                          child: const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              'Source code on Github',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          onTap: () => launchUrlString('https://github.com/jasondoong/timetrail'),
+                        ),
+                      ],
+                    ),
+                  )
+                  
+
+                ],
+              );
+            },
+          ),
         ],
       ),
       body: Center(
