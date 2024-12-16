@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:timetrail/models/task.dart';
 import 'package:timetrail/screens/stopwatch/stopwatch_screen.dart';
 import 'package:timetrail/services/isar_service.dart';
@@ -17,7 +18,7 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    
+
     void _showRenameDialog(BuildContext context) async {
       final result = await showDialog<String>(
         context: context,
@@ -48,52 +49,63 @@ class TaskCard extends StatelessWidget {
       );
     }
 
+    String _unsavedSecondsFormatting(int? seconds) {
+      if (seconds is Null) {
+        return '';
+      }
+      int hours = seconds ~/ 3600;
+      int minutes = (seconds % 3600) ~/ 60;
+      int displaySeconds = seconds % 60;
+      return "${NumberFormat('00').format(hours)}:${NumberFormat('00').format(minutes)}:${NumberFormat('00').format(displaySeconds)}";
+    }
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 3,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  StyledText(task.name),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: colorScheme.secondary),
-                        onPressed: () => _showRenameDialog(context),
-                        tooltip: '改名',
+        child: Row(children: [
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                StyledText(task.name),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: colorScheme.secondary),
+                      onPressed: () => _showRenameDialog(context),
+                      tooltip: '改名',
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        task.closed ? Icons.undo : Icons.check,
+                        color: task.closed
+                            ? colorScheme.primary
+                            : colorScheme.error,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          task.closed ? Icons.undo : Icons.check,
-                          color: task.closed ? colorScheme.primary : colorScheme.error,
-                        ),
-                        onPressed: () => _showCloseTaskDialog(context),
-                        tooltip: task.closed ? '恢復專案': '結案',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      onPressed: () => _showCloseTaskDialog(context),
+                      tooltip: task.closed ? '恢復專案' : '結案',
+                    ),
+                  ],
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
+          ),
+          if (task.unsavedSeconds != null)
+            StyledText("已暫停 ${_unsavedSecondsFormatting(task.unsavedSeconds)}"),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (ctx) => StopwatchScreen(task: task),
-                  )
-                );
-              }, 
-              icon: const Icon(Icons.arrow_forward),
-            )
-          ]
-        ),
+                  ));
+            },
+            icon: const Icon(Icons.arrow_forward),
+          )
+        ]),
       ),
     );
   }

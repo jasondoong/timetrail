@@ -15,18 +15,28 @@ class IsarService {
     //Perform a synchronous write transaction to add the task to the database.
     isar.writeTxnSync(() => isar.tasks.putSync(newTask));
   }
-    //Listen to changes in the task collection and yield a stream of task lists.
+
+  //Listen to changes in the task collection and yield a stream of task lists.
   Stream<List<Task>> listenTask() async* {
     final isar = await db;
     //Watch the user collection for changes and yield the updated user list.
     yield* isar.tasks.where().watch(fireImmediately: true);
   }
 
-    // Update an existing task in the Isar database.
+  // Update an existing task in the Isar database.
   Future<void> updateTask(Task task) async {
     final isar = await db;
     await isar.writeTxn(() async {
       //Perform a write transaction to update the task in the database.
+      await isar.tasks.put(task);
+    });
+  }
+
+  Future<void> saveUnsavedSeconds(Task task, int seconds) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      //Perform a write transaction to update the task in the database.
+      task.unsavedSeconds = seconds;
       await isar.tasks.put(task);
     });
   }
@@ -40,7 +50,7 @@ class IsarService {
 
   Future<Isar> openDB() async {
     var dir = await getApplicationDocumentsDirectory();
-    
+
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
         // task.g.dart includes the schemes that we need to define here - it can be multiple.

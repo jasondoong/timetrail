@@ -20,6 +20,14 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
   int _seconds = 0;
   bool _isRunning = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _seconds from widget.task.unsavedSeconds here
+    _seconds =
+        widget.task.unsavedSeconds ?? 0; // Use null-ish coalescing operator
+  }
+
   void _startTimer() {
     if (_isRunning) return;
     setState(() {
@@ -38,6 +46,11 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
     setState(() {
       _isRunning = false;
     });
+    _saveUnsavedSeconds();
+  }
+
+  Future<void> _saveUnsavedSeconds() async {
+    isarService.saveUnsavedSeconds(widget.task, _seconds);
   }
 
   void _stopTimer() {
@@ -53,9 +66,12 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
     int minutes = (_seconds % 3600) ~/ 60;
     int displaySeconds = _seconds % 60;
 
-    TextEditingController hourController = TextEditingController(text: hours.toString());
-    TextEditingController minuteController = TextEditingController(text: minutes.toString());
-    TextEditingController secondController = TextEditingController(text: displaySeconds.toString());
+    TextEditingController hourController =
+        TextEditingController(text: hours.toString());
+    TextEditingController minuteController =
+        TextEditingController(text: minutes.toString());
+    TextEditingController secondController =
+        TextEditingController(text: displaySeconds.toString());
 
     await showDialog(
       context: context,
@@ -103,7 +119,9 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
                 int adjustedMinutes = int.tryParse(minuteController.text) ?? 0;
                 int adjustedSeconds = int.tryParse(secondController.text) ?? 0;
 
-                _seconds = adjustedHours * 3600 + adjustedMinutes * 60 + adjustedSeconds;
+                _seconds = adjustedHours * 3600 +
+                    adjustedMinutes * 60 +
+                    adjustedSeconds;
 
                 final record = Record(
                   recordAt: DateTime.now(),
@@ -140,8 +158,8 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
     final int displaySeconds = seconds % 60;
 
     return '${hours.toString().padLeft(2, '0')}:'
-           '${minutes.toString().padLeft(2, '0')}:'
-           '${displaySeconds.toString().padLeft(2, '0')}';
+        '${minutes.toString().padLeft(2, '0')}:'
+        '${displaySeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -153,7 +171,7 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

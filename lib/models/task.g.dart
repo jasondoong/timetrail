@@ -32,6 +32,11 @@ const TaskSchema = CollectionSchema(
       name: r'records',
       type: IsarType.objectList,
       target: r'Record',
+    ),
+    r'unsavedSeconds': PropertySchema(
+      id: 3,
+      name: r'unsavedSeconds',
+      type: IsarType.int,
     )
   },
   estimateSize: _taskEstimateSize,
@@ -85,6 +90,7 @@ void _taskSerialize(
     RecordSchema.serialize,
     object.records,
   );
+  writer.writeInt(offsets[3], object.unsavedSeconds);
 }
 
 Task _taskDeserialize(
@@ -104,6 +110,7 @@ Task _taskDeserialize(
     allOffsets,
     Record(),
   );
+  object.unsavedSeconds = reader.readIntOrNull(offsets[3]);
   return object;
 }
 
@@ -125,6 +132,8 @@ P _taskDeserializeProp<P>(
         allOffsets,
         Record(),
       )) as P;
+    case 3:
+      return (reader.readIntOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -506,6 +515,75 @@ extension TaskQueryFilter on QueryBuilder<Task, Task, QFilterCondition> {
       );
     });
   }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'unsavedSeconds',
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'unsavedSeconds',
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unsavedSeconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unsavedSeconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unsavedSeconds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> unsavedSecondsBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unsavedSeconds',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension TaskQueryObject on QueryBuilder<Task, Task, QFilterCondition> {
@@ -541,6 +619,18 @@ extension TaskQuerySortBy on QueryBuilder<Task, Task, QSortBy> {
   QueryBuilder<Task, Task, QAfterSortBy> sortByNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> sortByUnsavedSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unsavedSeconds', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> sortByUnsavedSecondsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unsavedSeconds', Sort.desc);
     });
   }
 }
@@ -581,6 +671,18 @@ extension TaskQuerySortThenBy on QueryBuilder<Task, Task, QSortThenBy> {
       return query.addSortBy(r'name', Sort.desc);
     });
   }
+
+  QueryBuilder<Task, Task, QAfterSortBy> thenByUnsavedSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unsavedSeconds', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> thenByUnsavedSecondsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unsavedSeconds', Sort.desc);
+    });
+  }
 }
 
 extension TaskQueryWhereDistinct on QueryBuilder<Task, Task, QDistinct> {
@@ -594,6 +696,12 @@ extension TaskQueryWhereDistinct on QueryBuilder<Task, Task, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Task, Task, QDistinct> distinctByUnsavedSeconds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unsavedSeconds');
     });
   }
 }
@@ -620,6 +728,12 @@ extension TaskQueryProperty on QueryBuilder<Task, Task, QQueryProperty> {
   QueryBuilder<Task, List<Record>?, QQueryOperations> recordsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'records');
+    });
+  }
+
+  QueryBuilder<Task, int?, QQueryOperations> unsavedSecondsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unsavedSeconds');
     });
   }
 }
