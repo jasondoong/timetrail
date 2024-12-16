@@ -37,6 +37,12 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
       setState(() {
         _seconds++;
       });
+      if (_seconds % 5 == 0) {
+        // Periodically save the current timer state (every 5 seconds)
+        // to the database to enable recovery from unexpected app termination
+        // (e.g., system crashes, battery depletion).
+        isarService.saveUnsavedSeconds(widget.task, _seconds);
+      }
     });
   }
 
