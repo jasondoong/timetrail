@@ -50,7 +50,7 @@ class TaskCard extends StatelessWidget {
     }
 
     String _unsavedSecondsFormatting(int? seconds) {
-      if (seconds is Null) {
+      if (seconds == null) {
         return '';
       }
       int hours = seconds ~/ 3600;
